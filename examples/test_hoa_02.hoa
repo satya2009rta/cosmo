@@ -1,0 +1,25 @@
+HOA: v1
+States: 5
+Start: 0
+AP: 1 "a"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+spot-state-player: 0 0 1 1 1
+controllable-AP:
+--BODY--
+State: 0
+[!0] 2
+[0] 3 {0}
+State: 1
+[0] 3 {0}
+[!0] 4 {0}
+State: 2
+[t] 0
+State: 3
+[t] 1 {0}
+State: 4
+[t] 0 {0}
+--END--
+FORMULA: ( F G ( ! a -> ( X ! a ) ) ) & ( G F ! a )
