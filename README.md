@@ -34,7 +34,7 @@ The possible OPTIONs are as follows:
 
 Example usage:
 ```
-./build/cosmo --print-game< ./examples/test_dhoa_02.hoa
+./build/cosmo --print-game < ./examples/test_dhoa_02.hoa
 ```
 
 ### - genMaze
