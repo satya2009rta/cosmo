@@ -22,4 +22,3 @@ State: 3
 State: 4
 [t] 0 {0}
 --END--
-FORMULA: ( F G ( ! a -> ( X ! a ) ) ) & ( G F ! a )

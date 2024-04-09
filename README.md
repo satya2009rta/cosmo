@@ -11,19 +11,49 @@ CoSMo is a tool for computing assumption and strategy templates as contracted st
 Run the following commands to build all executable files
 
 ```
-make build
+make
 ```
 ## Usage 
 
 The executable files are generated and stored in the folder `./build/`. Usage of each executable is outlined below.
 
-- `compute` computes an assumption template for the environment and a strategy template for the system in a parity game. It requires stdin input which is the description of a parity game in extended HOA or pgsolver format; and outputs the result to stdout.
+### - cosmo
+```
+Usage: cosmo [OPTION...]
+```
 
-- `negotiate` computes an assumption template and a strategy template for each player in a two-objective parity game. It requires stdin input which is the description of a generalized parity game in extended HOA or pgsolver format; and outputs the result to stdout.
+Inputs/Outputs:
+- STDIN: description of a (single-objective) parity game in extended-HOA/pgsolver format    
+OR description of a two-objective parity game in extended-HOA/pgsolver format
+OR description of two parity games in extended-HOA format concated in one file
+- STDOUT: assumption and strategy templates for each player (assumption on environment and strategy template for system in case of a single-objective parity game)
 
-- `pg2dpg` converts a parity game to a two-objective parity game by adding two random parity objectives to a game graph. It requires two command-line arguments: (1) filename that contains the description of a parity game in extended HOA or pgsolver format, (2) maximum priority of the parity objectives; and outputs the result game in pgsolver format to stdout.
+The possible OPTIONs are as follows:
+- --print-game: print the parity game (same format as input)
+- --print-template-size: print size of the templates
 
-- `genMaze` generates a maze benchmark as a two-objective parity game. It requires six command-line arguments: (1) number of columns, (2) number of rows, (3) number of walls, (4) number of corridors (optional, default is 0), (5) objective of Player 1 as a parity game in extended HOA format (optional, default is GF ur0), (6) objective of Player 2 as a parity game in extended HOA format (optional, default is GF ul1); and outputs the result game in extended HOA format to stdout. 
+Example usage:
+```
+./build/cosmo --print-game< ./examples/test_dhoa_02.hoa
+```
 
+### - genMaze
+```
+Usage: genMaze [num_cols] [num_rows] [num_walls] [num_corr] [obj1] [obj2]
+```
+
+Inputs/Outputs:
+- num_cols: number of columns
+- num_rows: number of rows
+- num_walls: number of walls
+- num_corr: number of corridors (optional, default is 0)
+- obj1: objective of Player 1 as a parity game in extended-HOA format (optional, default is GF ur0)
+- obj2: objective of Player 2 as a parity game in extended-HOA format (optional, default is GF ul1)
+- STDOUT: a maze benchmark as a two-objective parity game
+
+Example usage:
+```
+./build/genMaze 3 3 2 1
+```
 
 

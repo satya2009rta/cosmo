@@ -2,20 +2,8 @@
 # compilers
 ####################
 CC        = g++
-C	  		= gcc
 CXXFLAGS 	= -Wall -Wextra -std=c++2a -O3 -DNDEBUG -Wno-unknown-pragmas 
 CFLAGS 	= -O3 -DNDEBUG
-
-
-## OpenMP compiler and flags
-# MPCC 	= g++
-# MPFLAGS	= -fopenmp
-
-
-
-# No OpenMP
-MPCC 		= g++
-MPFLAGS		=
 
 ####################
 # project root
@@ -31,9 +19,9 @@ BUILD		= $(PRJROOT)/build
 # main executable files
 #
 
-.PHONY: folder clean compute negotiate pg2dpg genMaze
+.PHONY: folder clean cosmo genMaze
 
-TARGET = folder compute negotiate pg2dpg genMaze
+TARGET = folder cosmo genMaze
 
 build: $(TARGET)
 
@@ -43,14 +31,8 @@ folder:
 clean:
 	rm -r -f  $(BUILD)/*
 
-compute:
-	$(CC) $(CXXFLAGS) $(LIBINC) $(SRC)/compute.cpp -o $(BUILD)/compute
-
-negotiate:
-	$(MPCC) $(CXXFLAGS) $(LIBINC) $(MPFLAGS) $(SRC)/negotiate.cpp -o $(BUILD)/negotiate
-
-pg2dpg:
-	$(CC) $(CXXFLAGS) $(LIBINC) $(SRC)/pg2dpg.cpp -o $(BUILD)/pg2dpg
+cosmo:
+	$(CC) $(CXXFLAGS) $(LIBINC) $(SRC)/cosmo.cpp -o $(BUILD)/cosmo
 
 genMaze:
 	$(CC) $(CXXFLAGS) $(LIBINC) $(BSRC)/genMaze.cpp -o $(BUILD)/genMaze

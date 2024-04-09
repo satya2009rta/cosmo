@@ -24,4 +24,3 @@ State: 4
 State: 5
 [0] 1
 --END--
-FORMULA: ( G ( a -> b ) ) & ( F ! b )

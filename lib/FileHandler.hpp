@@ -213,6 +213,7 @@ mpa::Game std2game(){
  * \param[in] issr input stream */
 mpa::DistGame gpg2distgame(std::istream& issr){
     mpa::DistGame G;
+    G.all_colors_.clear();
     std::string line;
     /* go through all the lines until a match with arr_name is found */
     while(std::getline(issr,line)) {
@@ -373,6 +374,13 @@ mpa::DistGame std2distgame(){
             break;
         }
     }
+    if (str2.empty()){ /* if it only one game */
+        G.n_games_ = 1;
+        G.all_colors_[0] = G.colors_;
+        G.all_max_color_[0] = G.max_col(G.colors_);
+        G.all_vert_id_[0] = G.vert_id_;
+        return G;
+    }
     std::istringstream issr2(str2);
     mpa::Game G2 = hoa2game(issr2);
     mpa::Game G1 = G;
@@ -513,7 +521,7 @@ int game2hoa(const mpa::Game G, std::ostream& ostr = std::cout) {
 
 /*! print out (to a file if given) the dist-game in hoa format 
  * \param[in] DistGame  */
-int distgame2hoa(const mpa::DistGame G, std::ostream& ostr = std::cout) {
+int distgame2hoa(mpa::DistGame& G, std::ostream& ostr = std::cout) {
     size_t n_vertices = G.n_vert_ - G.n_edge_/2;
     ostr << "HOA: v1\n";
     ostr << "States: "<< n_vertices << "\n";
@@ -568,15 +576,17 @@ int distgame2hoa(const mpa::DistGame G, std::ostream& ostr = std::cout) {
 
 /*! output a distgame to gpg (gpg) format 
  * \param[in] DistGame  */
-int distgame2gpg(const mpa::DistGame G, std::ostream& ostr = std::cout){
+int distgame2gpg(mpa::DistGame& G, std::ostream& ostr = std::cout){
     /* print first line */
     ostr<< "parity "<< G.n_vert_-1 <<";\n"; 
         
     for (size_t v = 0; v < G.n_vert_; v++){ /* print the following for each vertex */
         ostr << v << " "; /* vertex name (number) */
         ostr<<G.all_colors_[0].at(v); /* print color in 1st game separately to avoid comma */
-        for (size_t i = 1; i < G.n_games_; i++){/* for each other game print color of v with comma */
-            ostr<<","<<G.all_colors_[i].at(v);
+        if (G.n_games_ > 1){
+            for (size_t i = 1; i < G.n_games_; i++){/* for each other game print color of v with comma */
+                ostr<<","<<G.all_colors_[i].at(v);
+            }
         }
 
         ostr << " " << G.all_vert_id_[0].at(v) << " "; /* print vertex id (which player it belongs to) */
@@ -600,7 +610,7 @@ int distgame2gpg(const mpa::DistGame G, std::ostream& ostr = std::cout){
 
 /*! output a distgame to file/output
  * \param[in] DistGame  */
-int distgame2std(const mpa::DistGame G, std::ostream& ostr = std::cout, const std::string format = "hoa"){
+int distgame2std(mpa::DistGame& G, std::ostream& ostr = std::cout, const std::string format = "hoa"){
     if (G.labels_.empty() || format != "hoa"){
         return distgame2gpg(G, ostr);
     }
