@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
                 return 0;
             } else {
                 printHelpN(std::string(argv[i]));
-                return 0;
+                return 1;
             }
         }
 
@@ -87,10 +87,10 @@ int main(int argc, char* argv[]) {
             
             if (winning_region.first.find(G2.init_vert_) != winning_region.first.end()){
                 std::cout << "REALIZABLE!\n";
-                return 1;
+                return 0;
             }
             std::cout << "UNREALIZABLE!\n";
-            return 0;
+            return 1;
         }
         
         /* compute the strat template */
