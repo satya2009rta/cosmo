@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
     catch (const std::exception &ex) {
         std::cout << ex.what() << "\n";
         printHelp();
-        return -1;
+        return 1;
     }
 }
 

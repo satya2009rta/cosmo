@@ -129,11 +129,11 @@ int main(int argc, char* argv[]) {
 
         if (winning_region.first.find(G.init_vert_) != winning_region.first.end()){
             std::cout << "REALIZABLE!\n";
-            return 1;
+            return 0;
         }
         else{
             std::cout << "UNREALIZABLE!\n";
-            return 0;
+            return 1;
         }
     }
     /* TODO: print the same output in the output file */
