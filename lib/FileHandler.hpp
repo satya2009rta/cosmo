@@ -378,13 +378,22 @@ mpa::DistGame std2distgame(){
 
     /* other wise construct the second game from stdin and take product */
     std::string str2, line2;
+    bool start = false;
     while (std::getline(std::cin, line2)){
-        str2 += "\n" + line2;
-        if (line2.find("END") != std::string::npos){
-            break;
+        if (!start){
+            if (line2.find("HOA:") != std::string::npos){
+                start = true;
+                str2 += "\n" + line2;
+            }
+        }
+        else{
+            str2 += "\n" + line2;
+            if (line2.find("END") != std::string::npos){
+                break;
+            }
         }
     }
-    if (str2.empty()){ /* if it only one game */
+    if (!start){ /* if it only one game */
         G.n_games_ = 1;
         G.all_colors_[0] = G.colors_;
         G.all_max_color_[0] = G.max_col(G.colors_);
