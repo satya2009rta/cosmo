@@ -23,9 +23,7 @@ Usage: cosmo [OPTION...]
 ```
 
 Inputs/Outputs:
-- STDIN: description of a (single-objective) parity game in extended-HOA/pgsolver format    
-OR description of a two-objective parity game in extended-HOA/pgsolver format
-OR description of two parity games in extended-HOA format concated in one file
+- STDIN: description of a (single-objective) parity game in extended-HOA/pgsolver format OR description of a two-objective parity game in extended-HOA/pgsolver format OR description of two parity games in extended-HOA format
 - STDOUT: assumption and strategy templates for each player (assumption on environment and strategy template for system in case of a single-objective parity game)
 
 The possible OPTIONs are as follows:
