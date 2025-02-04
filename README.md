@@ -27,7 +27,7 @@ Inputs/Outputs:
     - description of a (single-objective) parity game in extended-HOA/pgsolver format OR 
     - description of a two-objective parity game in extended-HOA/pgsolver format OR 
     - concatenated description of two parity games in extended-HOA format
-    - description of a multi-objective parity game in extended-HOA/pgsolver format (except for the 1st objective, all other objectives are considered for player 1)
+    - description of a multi-objective parity game in pgsolver format (except for the 1st objective, all other objectives are considered for player 1)
 - STDOUT: 
     - assumption and strategy templates for each player (in case of a two-objective parity game)
     - assumption on player 1 and strategy template for player 0 in case of a single-objective parity game
