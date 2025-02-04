@@ -307,8 +307,9 @@ public:
         /* update losing region and counter */
         winning_region.second = set_complement(winning_region.first);
         counter_ = DistGame_copy.counter_;
-        /* unsafe edges are the player 0's edges from winning region to losing region */
-        // assump.unsafe_edges_ = edges_between(winning_region.first, winning_region.second);
+        /* unsafe edges are the player i's edges from winning region to losing region */
+        strats[0].unsafe_edges_ = nthGame(0).edges_between(winning_region.first, winning_region.second, {V0});
+        strats[1].unsafe_edges_ = nthGame(0).edges_between(winning_region.first, winning_region.second, {V1});
         /* return winning region */
         return winning_region;
     }

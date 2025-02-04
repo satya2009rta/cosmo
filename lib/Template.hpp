@@ -42,6 +42,7 @@ public:
     void merge(Template new_temp){
         edge_merge(unsafe_edges_, new_temp.unsafe_edges_);
         edge_merge(colive_edges_, new_temp.colive_edges_);
+        live_groups_.insert(live_groups_.end(), new_temp.live_groups_.begin(), new_temp.live_groups_.end());
         cond_sets_.insert(cond_sets_.end(),new_temp.cond_sets_.begin(), new_temp.cond_sets_.end());
         cond_live_groups_.insert(cond_live_groups_.end(),new_temp.cond_live_groups_.begin(),new_temp.cond_live_groups_.end());
     }
@@ -139,6 +140,9 @@ public:
             }
         }
         live_groups = new_live_groups;
+        /* remove duplicate live groups */
+        std::sort(live_groups.begin(), live_groups.end());
+        live_groups.erase(std::unique(live_groups.begin(), live_groups.end()), live_groups.end());
     }
     /* clean empty live group in live_groups_ */
     void clean_live_groups() {
@@ -160,6 +164,17 @@ public:
         }
         cond_sets_ = new_cond_sets;
         cond_live_groups_ = new_cond_live_groups;
+        /* merge cond_sets if the corresponding live groups are the same (and remove the duplicate) */
+        for (size_t i = 0; i < cond_sets_.size(); i++){
+            for (size_t j = i+1; j < cond_sets_.size(); j++){
+                if (cond_live_groups_[i] == cond_live_groups_[j]){
+                    cond_sets_[i].insert(cond_sets_[j].begin(), cond_sets_[j].end());
+                    cond_sets_.erase(cond_sets_.begin()+j);
+                    cond_live_groups_.erase(cond_live_groups_.begin()+j);
+                    j -= 1;
+                }
+            }
+        }
     }
 
     /* clean every empty things from the template */
@@ -241,7 +256,7 @@ public:
             }
         }
     }
-    void print_live_groups(const std::string note = "live groups", const int print_empty = 1) const {
+    void print_live_groups(const std::string note = "live groups", const int print_empty = 0) const {
         print_live_groups(live_groups_, note, print_empty);
     }
 
@@ -294,8 +309,9 @@ public:
         }
         print_unsafe_edges();
         print_colive_edges();
+        print_live_groups();
         print_cond_live_groups();
-        if (unsafe_edges_.empty() && colive_edges_.empty() && cond_live_groups_.empty()){
+        if (unsafe_edges_.empty() && colive_edges_.empty() && live_groups_.empty() && cond_live_groups_.empty()){
             std::cout << "\nTRUE\n";
         }
     }

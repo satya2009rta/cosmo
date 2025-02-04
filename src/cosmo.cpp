@@ -13,7 +13,7 @@ void printHelp() {
     std::cout << "Usage: cosmo [OPTION...]\n";
     std::cout << "Compute assumption and strategy templates as contracted strategy masks for both players in a two-objective parity game.\n";
     std::cout << "\nInputs/Outputs:\n";
-    std::cout << "- STDIN: description of a (single-objective) parity game in extended-HOA/pgsolver format\n    or description of a two-objective parity game in extended-HOA/pgsolver format\n    or description of two parity games in extended-HOA format concated in one file\n";
+    std::cout << "- STDIN: description of a (single-objective) parity game in extended-HOA/pgsolver format\n    or description of a two-objective parity game in extended-HOA/pgsolver format\n    or concatenated description of two parity games in extended-HOA format\n";
     std::cout << "- STDOUT: assumption and strategy templates for each player (assumption on environment and strategy template for system in case of a single-objective parity game)\n"; 
     std::cout << "\nThe possible OPTIONs are as follows:\n";
     std::cout << "- --help                  Print this help message\n";
