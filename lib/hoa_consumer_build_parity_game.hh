@@ -45,10 +45,8 @@ namespace cpphoafparser {
         size_t max_color;
         /* colors of vertices */
         std::map<size_t, size_t> colors;
-        /* 2nd colors of vertices for dist-game */
-        std::map<size_t, size_t> colors2;
-        /* is it a dist-game */
-        bool dist_game = false;
+        /* vector of colors of vertices for multi-objective games */
+        std::vector<std::map<size_t, size_t>> all_colors;
 
         /* pre of edges for original vertices (incoming edges) */
         std::map<size_t, std::set<size_t>> pre_edges;
@@ -209,7 +207,6 @@ namespace cpphoafparser {
             }
             else{
                 data_->colors.insert({id,data_->minCol});
-                data_->colors2.insert({id,data_->minCol});
             }
             
             // if (data_->vert_id[id] == V0){
@@ -252,25 +249,25 @@ namespace cpphoafparser {
                                       std::shared_ptr<int_list> accSignature) override {
             size_t nbrId = conjSuccessors[0];
             size_t color;
-            size_t color2;
+            std::vector<size_t> all_color;
             if (accSignature) {
                 std::vector<unsigned int> accSignatureValue = *accSignature.get();
                 color = accSignatureValue[0]+data_->minCol+1;
                 if (color > data_->max_color){
                     data_->max_color = color;
                 }
-                if (accSignatureValue.size() > 1){
-                    data_->dist_game = true;
-                    color2 = accSignatureValue[1]+data_->minCol+1;
-                    if (color2 > data_->max_color){
-                        data_->max_color = color2;
-                    }
+                /* continue collecting colors as long as possible */
+                for (size_t i = 0; i < accSignatureValue.size(); i++){
+                    all_color.push_back(accSignatureValue[i]+data_->minCol+1);
                 }
+                if (all_color.size() > 0 && all_color.size() != data_->all_colors.size()){
+                    data_->all_colors = std::vector<std::map<size_t, size_t>>(all_color.size());
+                }
+                
                 
             }
             else{
                 color = data_->minCol;
-                color2 = data_->minCol;
             }
             std::stack<label_expr::ptr> nodes;
             nodes.push(labelExpr);
@@ -284,8 +281,10 @@ namespace cpphoafparser {
                 data_->edges[newId].insert(nbrId);
                 data_->pre_edges[nbrId].insert(newId);
                 data_->colors.insert({newId,color});
-                data_->colors2.insert({newId,color2});
-
+                for (size_t i = 0; i < all_color.size(); i++){
+                    data_->all_colors[i].insert({newId,all_color[i]});
+                }
+                
                 std::vector<size_t> edgeLabel(data_->ap_id.size(),2);
                 data_->labels.insert({newId, edgeLabel});
             }else{
@@ -315,7 +314,9 @@ namespace cpphoafparser {
                     data_->edges[newId].insert(nbrId);
                     data_->pre_edges[nbrId].insert(newId);
                     data_->colors.insert({newId,color});
-                    data_->colors2.insert({newId,color2});
+                    for (size_t i = 0; i < all_color.size(); i++){
+                        data_->all_colors[i].insert({newId,all_color[i]});
+                    }
 
                     std::vector<size_t> edgeLabel(data_->ap_id.size(),2);
                     while (single_node.size() != 0) {

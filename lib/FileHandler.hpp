@@ -309,11 +309,19 @@ mpa::DistGame hoa2distgame(std::istream& issr){
     G.controllable_ap_ = data.controllable_ap;
     G.n_games_ = 2;
 
-    if (data.dist_game){
-        G.all_colors_[0] = data.colors;
-        G.all_colors_[1] = data.colors2;
-        G.all_max_color_[0] = G.max_col(data.colors);
-        G.all_max_color_[1] = G.max_col(data.colors2);
+    if (data.all_colors.size() > 1){
+        G.n_games_ = data.all_colors.size();
+        for (auto v : G.vertices_){
+            for (size_t i = 0; i < G.n_games_; i++){
+                if (data.all_colors[i].find(v) == data.all_colors[i].end()){
+                    data.all_colors[i][v] = data.minCol;
+                }
+            }
+        }
+        G.all_colors_ = data.all_colors;
+        for (size_t i = 0; i < G.n_games_; i++){
+            G.all_max_color_.push_back(G.max_col(G.all_colors_[i]));
+        }       
         G.all_vert_id_[0] = data.vert_id;
         for (auto pair : data.vert_id){
             G.all_vert_id_[1][pair.first] = 1 - pair.second;
