@@ -82,15 +82,15 @@ public:
     /* solve reachability game for player i (default is player 0)
      * input: target
      * output: Reach_i(target) */
-    std::pair<std::set<size_t>, std::set<size_t>> solve_reachability_game(const std::set<size_t> target,
-                                                    const std::set<size_t> players = {V0}) const {
+    std::pair<std::set<size_t>, std::set<size_t>> solve_reachability_game(const std::set<size_t>& target,
+                                                    const std::set<size_t>& players = {V0}) const {
         std::set<size_t> losing; /* vertices from which targets might not be reachable */
         std::set<size_t> winning = target; /* vertices from which targets are currently reachable */
         while (true)
         {
             losing = set_complement(winning); /* complement of vertices from which targets are currently reachable */
             std::set<size_t> new_winning; /* new vertices from which targets are currently reachable */
-            for (size_t v: losing){ /* new_winning =  cpre_i(winning) */
+            for (const size_t& v: losing){ /* new_winning =  cpre_i(winning) */
                 if(players.find(vert_id_.at(v)) != players.end() && check_set_intersection(edges_.at(v),winning))
                     new_winning.insert(v);
                 else if(check_set_inclusion(edges_.at(v),winning) && edges_.find(v) != edges_.end())
@@ -107,14 +107,14 @@ public:
     /* solve Buechi game 
      * input: target
      * output: winning region for player 0 */
-    std::pair<std::set<size_t>, std::set<size_t>> solve_buchi_game(const std::set<size_t> target) const {
+    std::pair<std::set<size_t>, std::set<size_t>> solve_buchi_game(const std::set<size_t>& target) const {
         Game subgame = *this; /* copy the game */
         std::set<size_t> non_target = set_complement(target); /* vertices which are not target */
         /* in the subgame (copy of the game), target vertices has color 2 
         and non-target vertices have color 1 */
-        for (size_t v: target) 
+        for (const size_t& v: target)
             subgame.colors_.at(v) = 2;
-        for (size_t v: non_target)
+        for (const size_t& v: non_target)
             subgame.colors_.at(v) = 1;
         return subgame.solve_parity_game(); /* solve the 2-color parity game using parity algo */
     }
@@ -122,14 +122,14 @@ public:
     /* solve Co-Buechi game 
      * input: target (Eventually Always [target])
      * output: winning region for player 0 */
-    std::pair<std::set<size_t>, std::set<size_t>> solve_cobuchi_game(const std::set<size_t> target) const {
+    std::pair<std::set<size_t>, std::set<size_t>> solve_cobuchi_game(const std::set<size_t>& target) const {
         Game subgame = *this; /* copy the game */
         std::set<size_t> non_target = set_complement(target); /* vertices which are not target */
         /* in the subgame (copy of the game), target vertices has color 2 
         and non-target vertices have color 1 */
-        for (size_t v: target)
+        for (const size_t& v: target)
             subgame.colors_.at(v) = 0;
-        for (size_t v: non_target)
+        for (const size_t& v: non_target)
             subgame.colors_.at(v) = 1;
         return subgame.solve_parity_game(); /* solve the 2-color parity game using parity algo */
     }
@@ -196,7 +196,7 @@ public:
     /* solve cooperative safety game
      * input: target
      * output: winning region */
-    std::pair<std::set<size_t>, std::set<size_t>> solve_coop_safety_game(const std::set<size_t> target) const {
+    std::pair<std::set<size_t>, std::set<size_t>> solve_coop_safety_game(const std::set<size_t>& target) const {
         /* non-targets is the complement of target */
         std::set<size_t> non_target = set_complement(target);
         /* losing region in coop_safety(target) is winning region in forced_reach(non_target) */
@@ -208,7 +208,7 @@ public:
     /* solve cooperative co-Buchi game
      * input: target (Eventually Always [target])
      * output: winning region */
-    std::pair<std::set<size_t>, std::set<size_t>> solve_coop_cobuchi_game(const std::set<size_t> target) const {
+    std::pair<std::set<size_t>, std::set<size_t>> solve_coop_cobuchi_game(const std::set<size_t>& target) const {
         auto safety_winning_region = solve_coop_safety_game(target); /* winning region of coop_safety(target) */
         /* winning region is the vertices from which players can cooperatively reach safety_winning(target) */
         return solve_reachability_game(safety_winning_region.first, {V0,V1});
@@ -217,7 +217,7 @@ public:
     /* solve cooperative Buchi game 
      * input: target
      * output: winning region */
-    std::pair<std::set<size_t>, std::set<size_t>> solve_coop_buchi_game(const std::set<size_t> target) const {
+    std::pair<std::set<size_t>, std::set<size_t>> solve_coop_buchi_game(const std::set<size_t>& target) const {
         /* make a copy of the game and make every vertex player 0 vertex */
         Game game_copy = *this;
         for (auto& pair : game_copy.vert_id_){
@@ -247,7 +247,7 @@ public:
     ///////////////////////////////////////////////////////////////
     
     /* compute the assump and strat template for Buechi game */
-    std::pair<std::set<size_t>, std::set<size_t>> find_assump_buchi(const std::set<size_t> target,
+    std::pair<std::set<size_t>, std::set<size_t>> find_assump_buchi(const std::set<size_t>& target,
                                 Template& assump,
                                 Template& strat) const {
         /* initialize the template */
@@ -264,7 +264,7 @@ public:
     }
 
     /* find live groups recursively for reaching target */
-    std::pair<std::set<size_t>, std::set<size_t>>  find_live_groups_reach(const std::set<size_t> target,
+    std::pair<std::set<size_t>, std::set<size_t>>  find_live_groups_reach(const std::set<size_t>& target,
                                 Template& assump,
                                 Template& strat) const {
         std::set<size_t> curr_target = target;
@@ -299,7 +299,7 @@ public:
     ///////////////////////////////////////////////////////////////
     
     /* compute the assump and strat template for co-Buechi game */
-    std::pair<std::set<size_t>, std::set<size_t>> find_assump_cobuchi(const std::set<size_t> target,
+    std::pair<std::set<size_t>, std::set<size_t>> find_assump_cobuchi(const std::set<size_t>& target,
                                 Template& assump,
                                 Template& strat) const {
         /* initialize the template */
@@ -316,7 +316,7 @@ public:
     }
 
     /* find colive edges recursively to eventually stay in target */
-    std::pair<std::set<size_t>, std::set<size_t>>  find_colive_edges_cobuchi(const std::set<size_t> target,
+    std::pair<std::set<size_t>, std::set<size_t>>  find_colive_edges_cobuchi(const std::set<size_t>& target,
                                 Template& assump,
                                 Template& strat) const {
         auto safety_winning_region = solve_coop_safety_game(target); /* safety winning region for target */
@@ -462,7 +462,7 @@ public:
                 /* a play can not visit (even) max_col infinitely often,
                 so we change their color to 0 and solve odd degree color parity game */
                 if (!max_col_vertices.empty()){
-                    for (auto v : max_col_vertices){
+                    for (const auto& v : max_col_vertices){
                         game_copy.colors_.at(v) = 0;
                     }
                     game_copy.max_color_ = max_col(game_copy.colors_);
@@ -486,7 +486,7 @@ public:
     int filter_edges(std::map<size_t, std::set<size_t>>& edges) const {
         for (auto& pair : edges){
             std::set<size_t> new_succs;
-            for (auto succ : pair.second){
+            for (const auto& succ : pair.second){
                 new_succs.insert(*edges_.at(succ).begin());
             }
             pair.second = new_succs;
@@ -495,7 +495,7 @@ public:
     }
 
     /* filter out edge-states in a template */
-    int filter_templates(Template& assump, const std::set<size_t> org_vertices) const {
+    int filter_templates(Template& assump, const std::set<size_t>& org_vertices) const {
         filter_edges(assump.unsafe_edges_);
         filter_edges(assump.colive_edges_);
         for (auto& live_group : assump.live_groups_){
@@ -519,7 +519,7 @@ public:
             return 0;
         }
         std::set<size_t> org_vertices;
-        for (auto v : vertices_){
+        for (const auto& v : vertices_){
             if (vert_id_.at(v) != 2){
                 org_vertices.insert(v);
             }
@@ -539,10 +539,10 @@ public:
     /* function: set_difference
      *
      * compute set difference of two sets*/
-    
-    std::set<size_t> set_difference(const std::set<size_t> set2, const std::set<size_t> set1) const {
+
+    std::set<size_t> set_difference(const std::set<size_t>& set2, const std::set<size_t>& set1) const {
         std::set<size_t> set3; /* set2 - set1 */
-        for (auto u : set2){
+        for (const auto& u : set2){
             if (set1.find(u) == set1.end()){
                 set3.insert(u);
             }
@@ -554,7 +554,7 @@ public:
      *
      * compute complement of a set*/
     
-    std::set<size_t> set_complement(const std::set<size_t> set1) const {
+    std::set<size_t> set_complement(const std::set<size_t>& set1) const {
         return set_difference(vertices_, set1);
     }
 
@@ -562,7 +562,7 @@ public:
      *
      * check if set1 is included in set2 */
     template<class T>
-    bool check_set_inclusion(const std::set<T> set1, const std::set<T> set2) const {
+    bool check_set_inclusion(const std::set<T>& set1, const std::set<T>& set2) const {
         if (set2.empty()){
             return false;
         }
@@ -578,7 +578,7 @@ public:
      *
      * check if there is nonempty intersection between the two sets */
     template<class T>
-    bool check_set_intersection(const std::set<T> set1, const std::set<T> set2) const {
+    bool check_set_intersection(const std::set<T>& set1, const std::set<T>& set2) const {
         for (auto a = set1.begin(); a != set1.end(); ++a) {
             if (set2.find(*a) != set2.end()) {
                 return true;
@@ -592,25 +592,25 @@ public:
      *
      * merge one set into another */
     
-    void set_merge(std::set<size_t>& set1, const std::set<size_t> set2) const {
+    void set_merge(std::set<size_t>& set1, const std::set<size_t>& set2) const {
         set1.insert(set2.begin(), set2.end());
     }
 
     /* function: vertex_with_color
      *
      * returns the set of vertices (in a set) with color c */
-    std::set<size_t> vertex_with_color(const size_t c) const {
+    std::set<size_t> vertex_with_color(const size_t& c) const {
         std::set<size_t> result;
-        for (auto v : vertices_){
+        for (const auto& v : vertices_){
             if (colors_.at(v) == c){
                 result.insert(v);
             }
         }
         return result;
     }
-    std::set<size_t> vertex_with_color(const size_t c, const std::set<size_t> set) const {
+    std::set<size_t> vertex_with_color(const size_t& c, const std::set<size_t>& set) const {
         std::set<size_t> result;
-        for (auto v : set){
+        for (const auto& v : set){
             if (colors_.at(v) == c){
                 result.insert(v);
             }
@@ -621,13 +621,13 @@ public:
     /* function: map_remove_values
      *
      * remove set of values from one map (set of edges) */
-    
-    void map_remove_values(std::map<size_t, std::set<size_t>>& map, std::set<size_t> values) const {
+
+    void map_remove_values(std::map<size_t, std::set<size_t>>& map, const std::set<size_t>& values) const {
         for (auto v = map.begin(); v != map.end(); v++){
             v->second = set_difference(v->second, values);
         }
     }
-    void map_remove_values(std::map<size_t, size_t>& map, std::set<size_t> values) const {
+    void map_remove_values(std::map<size_t, size_t>& map, const std::set<size_t>& values) const {
         for (auto e = map.begin(); e != map.end();) {
             if (values.find(e->second) != values.end())
                 map.erase(e++);
@@ -640,7 +640,7 @@ public:
      *
      * remove set of keys from one map  */
     template<class T>
-    void map_remove_keys(std::map<size_t, T>& map, std::set<size_t> keys) const {
+    void map_remove_keys(std::map<size_t, T>& map, const std::set<size_t>& keys) const {
         for (auto const & key : keys){
             map.erase(key);
         }
@@ -649,7 +649,7 @@ public:
     /* function: map_remove_vertices
      *
      * remove set of keys and values from one map */
-    void map_remove_vertices(std::map<size_t, std::set<size_t>>& map, const std::set<size_t> keys) const {
+    void map_remove_vertices(std::map<size_t, std::set<size_t>>& map, const std::set<size_t>& keys) const {
         map_remove_keys(map, keys);
         map_remove_values(map,keys);
     }
@@ -657,9 +657,9 @@ public:
     /* function: max_col
      *
      * compute the max_color the game */
-    size_t max_col(std::map<size_t,size_t> colors) const {
+    size_t max_col(const std::map<size_t,size_t>& colors) const {
         size_t max_color = 0;
-        for (auto pair : colors){
+        for (const auto& pair : colors){
             if (pair.second > max_color)
                 max_color = pair.second;
         }
@@ -670,7 +670,7 @@ public:
      *
      * remove vertices from the game */
     
-    void remove_vertices(const std::set<size_t> set) {
+    void remove_vertices(const std::set<size_t>& set) {
         vertices_= set_complement(set);
         n_vert_ = vertices_.size();
         map_remove_keys(vert_id_, set);
@@ -680,7 +680,7 @@ public:
         
         map_remove_keys(edges_, set);
         n_edge_ = 0;
-        for (auto v : vertices_){
+        for (const auto& v : vertices_){
             edges_.at(v) = set_difference(edges_.at(v),set);
             n_edge_ += edges_.at(v).size();
         }
@@ -692,7 +692,7 @@ public:
      *
      * returns a subgame restricted to this set */
     
-    Game subgame(const std::set<size_t> set) const{
+    Game subgame(const std::set<size_t>& set) const{
         Game game(*this);
         game.n_vert_ = set.size();
         game.vertices_= set;
@@ -706,7 +706,7 @@ public:
         
         map_remove_keys(game.edges_, complement);
         game.n_edge_ = 0;
-        for (auto v : game.vertices_){
+        for (const auto& v : game.vertices_){
             game.edges_.at(v) = set_difference(game.edges_.at(v),complement);
             game.n_edge_ += game.edges_.at(v).size();
         }
@@ -727,17 +727,17 @@ public:
     /* function: set_intersetion
      *
      * compute intersection of sets */
-    std::set<size_t> set_intersection(const std::set<size_t> set1, const std::set<size_t> set2, const std::set<size_t> set3 = std::set<size_t>{}) const {
+    std::set<size_t> set_intersection(const std::set<size_t>& set1, const std::set<size_t>& set2, const std::set<size_t>& set3 = std::set<size_t>{}) const {
         std::set<size_t> set4;
         if (set3.empty()){
-            for (auto a : set1) {
+            for (const auto& a : set1) {
                 if (set2.find(a) != set2.end()) {
                     set4.insert(a);
                 }
             }
         }
         else{
-            for (auto a : set1) {
+            for (const auto& a : set1) {
                 if (set2.find(a) != set2.end() && set3.find(a) != set3.end()) {
                     set4.insert(a);
                 }
@@ -749,14 +749,14 @@ public:
     /* function: set_union
      *
      * compute union of two or more sets */
-    std::set<size_t> set_union(const std::set<size_t> set1, const std::set<size_t> set2) const {
+    std::set<size_t> set_union(const std::set<size_t>& set1, const std::set<size_t>& set2) const {
         std::set<size_t> result = set1;
         result.insert(set2.begin(), set2.end());
         return result;
     }
-    std::set<size_t> set_union(const std::vector<std::set<size_t>> sets) const {
+    std::set<size_t> set_union(const std::vector<std::set<size_t>>& sets) const {
         std::set<size_t> result;
-        for (auto set: sets){
+        for (const auto& set: sets){
             set_merge(result,set);
         }
         return result;
@@ -765,14 +765,14 @@ public:
     /* function: edges_between
      *
      * return all plyaer i's edges from source to target */
-    std::map<size_t, std::set<size_t>>  edges_between(const std::set<size_t> source,
-                        const std::set<size_t> target,
-                        const std::set<size_t> players) const {
+    std::map<size_t, std::set<size_t>>  edges_between(const std::set<size_t>& source,
+                        const std::set<size_t>& target,
+                        const std::set<size_t>& players) const {
         std::map<size_t, std::set<size_t>> result_edges;
         /* include every player i edge from source to target */
-        for (auto v : source){
+        for (const auto& v : source){
             if (players.find(vert_id_.at(v)) != players.end()){
-                for (auto u : edges_.at(v)){
+                for (const auto& u : edges_.at(v)){
                     if (target.find(u) != target.end()){
                         result_edges[v].insert(u);
                     }
@@ -781,14 +781,14 @@ public:
         }
         return result_edges;
     }
-    void edges_between(const std::set<size_t> source,
-                        const std::set<size_t> target,
+    void edges_between(const std::set<size_t>& source,
+                        const std::set<size_t>& target,
                         std::map<size_t, std::set<size_t>>& result_edges,
-                        const std::set<size_t> players) const {
+                        const std::set<size_t>& players) const {
         /* include every player i edge from source to target */
-        for (auto v : source){
+        for (const auto& v : source){
             if (players.find(vert_id_.at(v)) != players.end()){
-                for (auto u : edges_.at(v)){
+                for (const auto& u : edges_.at(v)){
                     if (target.find(u) != target.end()){
                         result_edges[v].insert(u);
                     }
@@ -796,15 +796,15 @@ public:
             }
         }
     }
-    std::map<size_t, std::set<size_t>> edges_between(const std::set<size_t> source,
-                        const std::set<size_t> target,
+    std::map<size_t, std::set<size_t>> edges_between(const std::set<size_t>& source,
+                        const std::set<size_t>& target,
                         std::set<size_t>& new_sources,
-                        const std::set<size_t> players) const {
+                        const std::set<size_t>& players) const {
         std::map<size_t, std::set<size_t>> result_edges;
         /* include every player i edge from source to target */
-        for (auto v : source){
+        for (const auto& v : source){
             if (players.find(vert_id_.at(v)) != players.end()){
-                for (auto u : edges_.at(v)){
+                for (const auto& u : edges_.at(v)){
                     if (target.find(u) != target.end()){
                         result_edges[v].insert(u);
                         new_sources.insert(v);
@@ -818,17 +818,17 @@ public:
     /* function: co_edges_between
      *
      * add all plyaer i's edges that are from source but not to target (and there is an edge from that source to target) */
-    std::map<size_t, std::set<size_t>> co_edges_between(const std::set<size_t> source,
-                        const std::set<size_t> target,
+    std::map<size_t, std::set<size_t>> co_edges_between(const std::set<size_t>& source,
+                        const std::set<size_t>& target,
                         std::set<size_t>& new_sources,
                         std::map<size_t, std::set<size_t>>& result_edges,
-                        const std::set<size_t> players) const {
+                        const std::set<size_t>& players) const {
         /* include every player i edge from source but not to target when there is an edge from source to target */
-        for (auto v : source){
+        for (const auto& v : source){
             bool colive_source = false; /* if there is an edge from this source to target */
             std::set<size_t> colive_neighbours; /* all neighbours of this source that is not a target */
             if (players.find(vert_id_.at(v)) != players.end()){
-                for (auto u : edges_.at(v)){
+                for (const auto& u : edges_.at(v)){
                     if (target.find(u) == target.end()){
                         colive_neighbours.insert(u);
                     }
@@ -864,7 +864,7 @@ public:
     /* function: print_set
      *
      * print out all elements of the set*/
-    void print_set (const std::set<size_t> set, const std::string note = "set") const {
+    void print_set (const std::set<size_t>& set, const std::string& note = "set") const {
         std::cout << "\n" << note << ": ";
         for (auto u=set.begin(); u != set.end();){
             std::cout << *u;

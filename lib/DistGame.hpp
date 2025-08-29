@@ -38,14 +38,14 @@ public:
     }
 
     /* copy a normal game */
-    DistGame(const Game other): Game(other){
+    DistGame(const Game& other): Game(other){
         counter_ = 0;
         n_games_ = 1;
         all_max_color_.push_back(max_color_);
         all_colors_.push_back(colors_);
         all_vert_id_.push_back(vert_id_);
         all_vert_id_.push_back(vert_id_);
-        for (auto v : vertices_){
+        for (const auto& v : vertices_){
             all_vert_id_[1][v] = 1 - all_vert_id_[0][v];
         }
     }
@@ -55,7 +55,7 @@ public:
     ///////////////////////////////////////////////////////////////
 
     /* find the parity game for n-th player */
-    Game nthGame(const size_t n) const{
+    Game nthGame(const size_t& n) const{
         mpa::Game game(*this);
         if (n == 0){/* 0-th objective is player-0's; rest are player-1's */
             game.vert_id_ = all_vert_id_[0];
@@ -74,7 +74,7 @@ public:
     ///////////////////////////////////////////////////////////////
 
     /* compute product of two games */
-    int product_games(const Game game1, const Game game2, const bool hoa = true) {
+    int product_games(const Game& game1, const Game& game2, const bool hoa = true) {
         *this = DistGame(); /* clear the game */
         n_games_ = 2; /* number of objective is two */
         counter_ = 0;
@@ -119,10 +119,10 @@ public:
         }
 
         /* update the controllable_aps */
-        for (size_t a : game1.controllable_ap_){
+        for (const size_t& a : game1.controllable_ap_){
             controllable_ap_.insert(first_aps_map.at(a));
         }
-        for (size_t a : game2.controllable_ap_){
+        for (const size_t& a : game2.controllable_ap_){
             controllable_ap_.insert(second_aps_map.at(a));
         }
         
@@ -152,11 +152,11 @@ public:
         while (!stack_list.empty()){
             std::vector<size_t> curr = stack_list.top(); /* current pair of vertices */
             stack_list.pop(); /* pop the top element from stack list */
-            for (auto u : game1.edges_.at(curr[1])){ /* for each edge-neighbour of 1st vertex */
-                for (auto v : game2.edges_.at(curr[2])){ /* for each edge-neihbour of 2nd vertex */
+            for (const auto& u : game1.edges_.at(curr[1])){ /* for each edge-neighbour of 1st vertex */
+                for (const auto& v : game2.edges_.at(curr[2])){ /* for each edge-neihbour of 2nd vertex */
                     bool valid = true; /* if product of these two edges is possible */
                     std::vector<size_t> temp_common(ap_id_.size(),2); /* needed if possible, temporarily store the ids of this new edge */
-                    for (auto ap : common_aps){ /* first go through common aps */
+                    for (const auto& ap : common_aps){ /* first go through common aps */
                         if (game1.labels_.at(u)[ap[1]]+game2.labels_.at(v)[ap[2]] == 1){
                             valid = false; /* one of the id of this ap is 1 and other is 0, so not valid product */
                             break;
@@ -171,10 +171,10 @@ public:
                     }
                     if (valid){ /* if the product-edge is valid */
                         /* update its temp_common to all ids */
-                        for (auto ap : first_aps){
+                        for (const auto& ap : first_aps){
                             temp_common[ap[0]] = game1.labels_.at(u)[ap[1]];
                         }
-                        for (auto ap : second_aps){
+                        for (const auto& ap : second_aps){
                             temp_common[ap[0]] = game2.labels_.at(v)[ap[1]];
                         }
                         size_t newId = org_vert; 
@@ -233,7 +233,7 @@ public:
     ///////////////////////////////////////////////////////////////
 
     /* generate and add n_games sets of colors to get a DistGame */
-    void randDistGame(const size_t n_games, const size_t max_col, const bool clear = true){
+    void randDistGame(const size_t& n_games, const size_t& max_col, const bool clear = true){
         if (clear){
             /* clear the colors */
             all_max_color_.clear();
@@ -252,7 +252,7 @@ public:
     }
 
     /* generate a set of random colors <= max_col */
-    std::map<size_t, size_t> random_colors(const size_t max_col){
+    std::map<size_t, size_t> random_colors(const size_t& max_col){
         std::map<size_t, size_t> colors;
         
         /* a vector of all vertices */
@@ -274,7 +274,7 @@ public:
             }
         }
         /* randomly choose color for remaining vertices */
-        for (auto vertex : remaining_vert){
+        for (const auto& vertex : remaining_vert){
             size_t rand_col = random_num(max_col); /* generate random color */
             colors.insert(std::make_pair(vertex, rand_col)); /* set color of vertex to rand_col */
         }
@@ -282,12 +282,11 @@ public:
     }
 
     /* random number from [0,n] */
-    size_t random_num(const size_t max, const size_t min = 0){
-        std::random_device rd; /* obtain a random number from hardware */
-        std::mt19937 gen(rd()); /* seed the generator */
-        std::uniform_int_distribution<> distr(min, max); /* define the range */
+    size_t random_num(const size_t& max, const size_t& min = 0, const size_t& seed = 42){
+        static std::mt19937 gen(seed); // fixed seed for reproducibility
+        std::uniform_int_distribution<> distr(min, max); // define the range
 
-        return distr(gen); /* generate numbers */
+        return distr(gen); // generate numbers
     }
 
 
@@ -326,7 +325,7 @@ public:
             #pragma omp for 
             for (size_t i = 0; i < n_games_; i++){
                 size_t colive_color = max_odd(all_max_color_[i]); /* minimum odd color >= max color */
-                for (size_t v : colive_vertices){/* set color of all colive vertices colive_color */
+                for (const size_t& v : colive_vertices){/* set color of all colive vertices colive_color */
                     all_colors_[i].at(v) = colive_color;
                     all_max_color_[i] = colive_color;
                 }
@@ -406,7 +405,7 @@ public:
     }
 
     /* check if there is any conflict */
-    bool isImplemntable(Template temp, const std::pair<std::set<size_t>, std::set<size_t>> winning_region) const {
+    bool isImplemntable(Template temp, const std::pair<std::set<size_t>, std::set<size_t>>& winning_region) const {
         if (conflict_colive(temp.colive_edges_) || conflict_live_colive(temp.live_groups_, temp.colive_edges_) || conflict_unsafe(temp.live_groups_, temp.colive_edges_, winning_region)){
                 return true;
         }
@@ -416,15 +415,15 @@ public:
     /* Check if the unsafe edges create some conflict */
     bool conflict_unsafe(std::vector<std::map<size_t, std::set<size_t>>>& live_group_set,
                             std::map<size_t, std::set<size_t>>& colive_edge_set,
-                            const std::pair<std::set<size_t>, std::set<size_t>> winning_region) const {
-        
-        for (auto v : winning_region.first){
+                            const std::pair<std::set<size_t>, std::set<size_t>>& winning_region) const {
+
+        for (const auto& v : winning_region.first){
             if (check_set_inclusion(edges_.at(v), set_union(winning_region.second, colive_edge_set[v]))){
                 return true; /* return true if there is a conflict */
             }
         }                
         for (auto& live_group : live_group_set){ /* iterate over all live groups to compute live_unsafe_region */
-            for (auto v : winning_region.first){
+            for (const auto& v : winning_region.first){
                 if (!live_group[v].empty() &&  check_set_inclusion(live_group[v], set_union(winning_region.second, colive_edge_set[v]))){
                     return true; /* return true if there is a conflict */
                 }
@@ -447,7 +446,7 @@ public:
 
     /* solve the conflict when the intersection of colive edges and live groups is non-empty */
     bool conflict_live_colive(std::vector<std::map<size_t, std::set<size_t>>>& live_group_set,
-                                const std::map<size_t, std::set<size_t>> colive_edge_set) const {
+                                const std::map<size_t, std::set<size_t>>& colive_edge_set) const {
         for (auto it = colive_edge_set.begin(); it != colive_edge_set.end(); it++){
             auto v = it ->first;
             for (auto& live_group : live_group_set){ /* iterate over all live groups */
@@ -497,7 +496,7 @@ public:
         for (size_t odd_col = 1; odd_col <= max_color_; odd_col+= 2){
             std::map<size_t, size_t> colors; /* new color vector */
             size_t max_color=2;
-            for (auto vertex : vertices_){/* loop through each vertex */
+            for (const auto& vertex : vertices_){/* loop through each vertex */
                 if (colors_[vertex] < odd_col){ 
                     colors.insert(std::make_pair(vertex,0)); /* new color of vertices with color < odd_col is 0 */
                 }
@@ -571,14 +570,14 @@ public:
 
         /* collect all colive vertices */
         std::set<size_t> colive_vertices;
-        for (auto pair : all_colive_edges){
+        for (const auto& pair : all_colive_edges){
             set_merge(colive_vertices,pair.second);
         }
         
         /* compute template for last game */
         size_t colive_color = max_odd(all_max_color_[n_games_-1]); /* minimum odd color >= max color */
         colive_vertices = set_intersection(vertices_,colive_vertices);
-        for (size_t v : colive_vertices){/* set color of all colive vertices colive_color */
+        for (const size_t& v : colive_vertices){/* set color of all colive vertices colive_color */
             all_colors_[n_games_-1].at(v) = colive_color;
             all_max_color_[n_games_-1] = colive_color;
         }
@@ -664,7 +663,7 @@ public:
             return 0;
         }
         std::set<size_t> org_vertices;
-        for (auto v : vertices_){
+        for (const auto& v : vertices_){
             if (all_vert_id_[0].at(v) != 2){
                 org_vertices.insert(v);
             }
@@ -686,7 +685,7 @@ public:
     /* function: max_odd
      *
      * return minimum odd color that is greater than or equal to max_color */
-    size_t max_odd(const std::map<size_t, size_t> colors) const {
+    size_t max_odd(const std::map<size_t, size_t>& colors) const {
         size_t odd_col = 1;
         for (auto const & col : colors){
             if (col.second%2 == 1 && col.second > odd_col)
@@ -696,7 +695,7 @@ public:
         }
         return odd_col;
     }
-    size_t max_odd(size_t max_color) const {
+    size_t max_odd(const size_t& max_color) const {
         if (max_color%2 == 1){
             return max_color;
         }
@@ -711,7 +710,7 @@ public:
     template<class T>
     void vec_erase_duplicate(std::vector<T>& vec) const {
         std::vector<T> new_vec;
-        for (auto element : vec){
+        for (const auto& element : vec){
             if (std::find(new_vec.begin(), new_vec.end(), element) == new_vec.end()){
                 new_vec.push_back(element);
             }
@@ -724,7 +723,7 @@ public:
      *
      * remove vertices from the game */
     
-    void remove_vertices(const std::set<size_t> set) {
+    void remove_vertices(const std::set<size_t>& set) {
         vertices_= set_complement(set);
         n_vert_ = vertices_.size();
         
@@ -738,7 +737,7 @@ public:
 
         map_remove_keys(edges_, set);
         n_edge_ = 0;
-        for (auto v : vertices_){
+        for (const auto& v : vertices_){
             edges_.at(v) = set_difference(edges_.at(v),set);
             n_edge_ += edges_.at(v).size();
         }
@@ -750,7 +749,7 @@ public:
      *
      * returns a subgame restricted to this set */
     
-    DistGame subgame(const std::set<size_t> set) const{
+    DistGame subgame(const std::set<size_t>& set) const{
         DistGame game = *this;
         game.n_vert_ = set.size();
         game.vertices_= set;
@@ -766,7 +765,7 @@ public:
 
         map_remove_keys(game.edges_, set);
         game.n_edge_ = 0;
-        for (auto v : game.vertices_){
+        for (const auto& v : game.vertices_){
             game.edges_.at(v) = set_difference(game.edges_.at(v),complement);
             game.n_edge_ += game.edges_.at(v).size();
         }
@@ -780,7 +779,7 @@ public:
      *
      * remove set of values from one map (set of edges) */
     
-    void map_remove(std::map<size_t, std::set<size_t>>& map2, const std::map<size_t, std::set<size_t>> map1) const {
+    void map_remove(std::map<size_t, std::set<size_t>>& map2, const std::map<size_t, std::set<size_t>>& map1) const {
         for (auto v = map1.begin(); v != map1.end(); v++){
             map2[v->first] = set_difference(map2[v->first], v->second);
         }

@@ -45,7 +45,7 @@ public:
     }
 
     /* if inside the boundary */
-    bool inBoundary(const Location boundary) const{
+    bool inBoundary(const Location& boundary) const{
         if (x_ <= boundary.x_ && y_ <= boundary.y_){
             return true;
         }
@@ -104,7 +104,7 @@ public:
     }
 
     /* convert location from/to index using boundary (as default location) */
-    size_t to_index(const Location loc) const{
+    size_t to_index(const Location& loc) const{
         return (x_*(loc.x_-1)+loc.y_-1);
     }
     Location from_index(const size_t i) const{
@@ -148,10 +148,10 @@ public:
     ///////////////////////////////////////////////////////////////
 
     /* construct from boundary and explicit (directed) walls */
-    void mazeSimple(const Location boundary, 
-        const std::vector<Location> init_state, 
-        const std::vector<Location> targets, 
-        const std::vector<std::vector<std::vector<Location>>> walls,
+    void mazeSimple(const Location& boundary, 
+        const std::vector<Location>& init_state, 
+        const std::vector<Location>& targets, 
+        const std::vector<std::vector<std::vector<Location>>>& walls,
         const bool standard_distance = true){
         boundary_ = boundary;
         walls_ = walls;
@@ -271,7 +271,7 @@ public:
     }
 
     /* check if both robot's locations are in safe distance */
-    bool safe_distance(const Location A, const Location B, const bool standard = true){
+    bool safe_distance(const Location& A, const Location& B, const bool standard = true){
         if (standard){ /* if we follow the standard rule, both location should not be equal */
             if (A == B){
                 return false;
@@ -287,7 +287,7 @@ public:
     }
 
     /* add new direction */
-    void new_direction(const size_t curr, const std::vector<Location> next_states, const size_t direction, std::stack<size_t>& stack_list, size_t& org_vert, size_t& edge_vert){
+    void new_direction(const size_t& curr, const std::vector<Location>& next_states, const size_t& direction, std::stack<size_t>& stack_list, size_t& org_vert, size_t& edge_vert){
         size_t id = vert_id_.at(curr);
         size_t next; /* next vertex */
         bool next_exists = false; /* if next_vert already present */
@@ -342,7 +342,7 @@ public:
 
 
     /* Is there a wall between two location */
-    bool isWall(const Location l1, const Location l2, const std::vector<std::vector<Location>> walls) const{
+    bool isWall(const Location& l1, const Location& l2, const std::vector<std::vector<Location>>& walls) const{
         for (auto wall : walls){
             if (wall[0]==l1 && wall[1]==l2){
                 return true;
@@ -358,8 +358,8 @@ public:
     ///////////////////////////////////////////////////////////////
 
     /* construct dummy maze with fixed targets, init_states, and generated walls, corridors */
-    void dummyMaze(const size_t max_x, const size_t max_y, 
-                const std::vector<std::vector<std::vector<Location>>> allWalls,
+    void dummyMaze(const size_t& max_x, const size_t& max_y, 
+                const std::vector<std::vector<std::vector<Location>>>& allWalls,
                 const bool standard_safe_distance = true){
         /* initialize boundary, init_state and walls */
         Location boundary(max_x,max_y); 
@@ -370,9 +370,9 @@ public:
         mazeSimple(boundary,init_state,targets,allWalls, standard_safe_distance);
     }
     /* same but generate the walls first */
-    void dummyMaze(const size_t max_x, const size_t max_y, 
-            const size_t n_walls = 0, 
-            const size_t  max_corridors = 0){
+    void dummyMaze(const size_t& max_x, const size_t& max_y, 
+            const size_t& n_walls = 0, 
+            const size_t&  max_corridors = 0){
         /* initialize boundary, init_state and walls */
         Location boundary(max_x,max_y); 
         std::vector<Location> init_state {mpa::Location(1,1),mpa::Location(max_x,1)}; 
@@ -387,10 +387,10 @@ public:
     
 
     /* generate walls and corridors from #walls, #max_corridors */
-    std::vector<std::vector<std::vector<Location>>> genWalls(const size_t max_x, const size_t max_y, 
-                const size_t n_walls = 0, 
-                const size_t  max_corridors = 0){
-        
+    std::vector<std::vector<std::vector<Location>>> genWalls(const size_t& max_x, const size_t& max_y, 
+                const size_t& n_walls = 0, 
+                const size_t& max_corridors = 0){
+
         /* initialize walls and corridors */
         std::vector<std::vector<Location>> walls;
         std::vector<std::vector<Location>> corridors;
@@ -477,7 +477,7 @@ public:
     }
 
     /* random k number from [1,n] */
-    std::set<size_t> random_knum(const size_t k, const size_t max, const size_t min = 1){
+    std::set<size_t> random_knum(const size_t& k, const size_t& max, const size_t& min = 1){
         std::set<size_t> result;
         std::vector<size_t> v(max);
         /* fill the vector with the values min, min+1, min+2, ... */
@@ -501,7 +501,7 @@ public:
     ///////////////////////////////////////////////////////////////
     
     /* compute product of two games */
-    int product_maze_game(const DistGame game1) {
+    int product_maze_game(const DistGame& game1) {
         auto game2 = *this;
         *this = Maze(); /* clear the maze */
         boundary_ = game2.boundary_;
@@ -663,7 +663,7 @@ public:
     /// Buchi objective maze
     ///////////////////////////////////////////////////////////////
     /* construct a color map for a buchi objective */
-    std::map<size_t, size_t> buchi_for_maze(const size_t p, const Location loc) const{
+    std::map<size_t, size_t> buchi_for_maze(const size_t& p, const Location& loc) const{
         std::map<size_t, size_t> colors;
         for (auto v : vertices_){
             if (vert_id_.at(v)!=2 && states_.at(v)[p] == loc){
@@ -693,8 +693,8 @@ public:
 //     ///////////////////////////////////////////////////////////////
 
 //     /* construct dummy agnes-format maze with fixed targets, init_states, and generated walls, corridors */
-//     negotiation::Negotiate dummyAgnesMaze(const size_t max_x, const size_t max_y, 
-//                 const std::vector<std::vector<std::vector<Location>>> allWalls,
+//     negotiation::Negotiate dummyAgnesMaze(const size_t& max_x, const size_t& max_y, 
+//                 const std::vector<std::vector<std::vector<Location>>>& allWalls,
 //                 const bool standard_safe_distance = true){
 //         /* initialize boundary, init_state and walls */
 //         Location boundary(max_x,max_y); 
@@ -706,10 +706,10 @@ public:
 //     }
 
 //     /* construct from boundary and explicit (directed) walls */
-//     negotiation::Negotiate mazeAgnesSimple(const Location boundary, 
-//         const std::vector<Location> init_state, 
-//         const std::vector<Location> targets, 
-//         const std::vector<std::vector<std::vector<Location>>> walls,
+//     negotiation::Negotiate mazeAgnesSimple(const Location& boundary, 
+//         const std::vector<Location>& init_state, 
+//         const std::vector<Location>& targets, 
+//         const std::vector<std::vector<std::vector<Location>>>& walls,
 //         const bool standard_distance = false){
     
 //     /* initialize to use later */
@@ -799,7 +799,7 @@ public:
 //     }
 
 //     /* add new direction for agnes-type component */
-//     int new_direction_agnes(negotiation::Component*& C0, std::map<size_t,negotiation::abs_type>& temp_posts, const size_t curr, const std::vector<size_t> d, std::stack<size_t>& stack_list, const bool standard_distance = false){
+//     int new_direction_agnes(negotiation::Component*& C0, std::map<size_t,negotiation::abs_type>& temp_posts, const size_t curr, const std::vector<size_t>& d, std::stack<size_t>& stack_list, const bool standard_distance = false){
 //         std::vector<Location> next_states(2); /* new location after the move */
 //         for (size_t i = 0; i < 2; i++){ /* for i-th robot */
 //             auto state = states_[curr][i];
@@ -858,7 +858,7 @@ public:
 
 /*! output a maze distgame to gpg (gpg) format 
  * \param[in] DistGame  */
-int maze2gpg(const mpa::DistGame G, std::ostream& ostr = std::cout){
+int maze2gpg(const mpa::DistGame& G, std::ostream& ostr = std::cout){
     size_t n_vertices = G.n_vert_ - G.n_edge_/2;
     /* print first line */
     ostr<< "parity "<< G.n_vert_-1 <<";\n"; 

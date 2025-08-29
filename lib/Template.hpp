@@ -39,7 +39,7 @@ public:
     ///////////////////////////////////////////////////////////////
 
     /* merge a new template */
-    void merge(Template new_temp){
+    void merge(const Template& new_temp){
         edge_merge(unsafe_edges_, new_temp.unsafe_edges_);
         edge_merge(colive_edges_, new_temp.colive_edges_);
         live_groups_.insert(live_groups_.end(), new_temp.live_groups_.begin(), new_temp.live_groups_.end());
@@ -47,29 +47,29 @@ public:
         cond_live_groups_.insert(cond_live_groups_.end(),new_temp.cond_live_groups_.begin(),new_temp.cond_live_groups_.end());
     }
     /* merge new set of edges to this set of edges */
-    void edge_merge(std::map<size_t, std::set<size_t>>& edges, const std::map<size_t, std::set<size_t>> new_edges) const {
+    void edge_merge(std::map<size_t, std::set<size_t>>& edges, const std::map<size_t, std::set<size_t>>& new_edges) const {
         for (auto v = new_edges.begin(); v != new_edges.end(); v++){
             edges[v->first].insert(v->second.begin(), v->second.end());
         }
     }
 
     /* merge all colive edges and live groups (in cond_live_groups_) with another template */
-    void merge_live_colive(Template new_temp){
+    void merge_live_colive(const Template& new_temp){
         edge_merge(colive_edges_, new_temp.colive_edges_);
         live_groups_.clear();
-        for (auto live_groups : cond_live_groups_){
+        for (const auto& live_groups : cond_live_groups_){
             live_groups_.insert(live_groups_.end(), live_groups.begin(), live_groups.end());
         }
-        for (auto live_groups : new_temp.cond_live_groups_){
+        for (const auto& live_groups : new_temp.cond_live_groups_){
             live_groups_.insert(live_groups_.end(), live_groups.begin(), live_groups.end());
         }
     }
 
     /* merge all colive edges and live groups (in cond_live_groups_) in a set of templates */
-    void merge_live_colive(std::vector<Template> new_temps){
-        for (auto new_temp : new_temps){
+    void merge_live_colive(const std::vector<Template>& new_temps){
+        for (const auto& new_temp : new_temps){
             edge_merge(colive_edges_, new_temp.colive_edges_);
-            for (auto live_groups : new_temp.cond_live_groups_){
+            for (const auto& live_groups : new_temp.cond_live_groups_){
                 live_groups_.insert(live_groups_.end(), live_groups.begin(), live_groups.end());
             }
         }
@@ -89,7 +89,7 @@ public:
     }
     size_t size_cond_live() const {
         size_t result = 0;
-        for (auto live_groups : cond_live_groups_){
+        for (const auto& live_groups : cond_live_groups_){
             result += live_groups.size();
         }
         return result;
@@ -204,11 +204,11 @@ public:
     /* function: print_edges
      *
      * print out all edges of the map */
-    void print_edges (const std::map<size_t, std::set<size_t>> edges, const std::string note = "edges", const int print_empty = 1) const {
+    void print_edges (const std::map<size_t, std::set<size_t>>& edges, const std::string note = "edges", const int print_empty = 1) const {
         if (print_empty == 1 || edges.size()!=0){
             std::cout << "\n" << note << ": \n";
             for (auto v = edges.begin(); v != edges.end(); ++v){
-                for (auto u : v->second){
+                for (const auto& u : v->second){
                     std::cout << v->first << " -> " << u << "\n";
                 }
             }
@@ -235,14 +235,14 @@ public:
     /* function: print_live_groups
      *
      * print out all live_groups of the live_groups */
-    void print_live_groups (const std::vector<std::map<size_t, std::set<size_t>>> live_groups, const std::string note = "live groups", const int print_empty = 1) const {
+    void print_live_groups (const std::vector<std::map<size_t, std::set<size_t>>>& live_groups, const std::string note = "live groups", const int print_empty = 1) const {
         if (print_empty == 1 || live_groups.size()!=0){
             std::cout << "\n" << note << ": \n";
-            for (auto live_group : live_groups){
+            for (const auto& live_group : live_groups){
                 std::cout << "{";
                 size_t counter = 0;
                 for (auto v = live_group.begin(); v != live_group.end(); v++){
-                    for (auto u : v->second){
+                    for (const auto& u : v->second){
                         if (counter == 0){
                             std::cout << "("<<v->first << " -> " << u<<")";
                             counter += 1;
@@ -269,9 +269,9 @@ public:
         if (print_empty == 1 || cond_live_groups_.size()!=0){
             std::cout << "\n" << note << ": \n";
             for (size_t i = 0; i < cond_sets_.size(); i++){
-                auto set = cond_sets_[i];
-                auto live_groups = cond_live_groups_[i];
-                for (auto live_group : live_groups){
+                const auto& set = cond_sets_[i];
+                const auto& live_groups = cond_live_groups_[i];
+                for (const auto& live_group : live_groups){
                     std::cout << "{";
                     for (auto u=set.begin(); u != set.end();){
                         std::cout << *u;
@@ -283,14 +283,14 @@ public:
                 
                     std::cout << "{";
                     size_t counter = 0;
-                    for (auto v = live_group.begin(); v != live_group.end(); v++){
-                        for (auto u : v->second){
+                    for (const auto& v : live_group){
+                        for (const auto& u : v.second){
                             if (counter == 0){
-                                std::cout << "("<<v->first << " -> " << u<<")";
+                                std::cout << "("<<v.first << " -> " << u<<")";
                                 counter += 1;
                             }
                             else{
-                                std::cout << ", " <<"("<< v->first << " -> " << u<<")";
+                                std::cout << ", " <<"("<< v.first << " -> " << u<<")";
                             }
                         }
                     }

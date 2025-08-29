@@ -85,7 +85,7 @@ mpa::Game hoa2game(std::istream& issr){
 
     return G;
 }
-mpa::Game hoa2game(const std::string filename){
+mpa::Game hoa2game(const std::string& filename){
     std::ifstream file(filename);
     return hoa2game(file);
     
@@ -333,11 +333,11 @@ mpa::DistGame hoa2distgame(std::istream& issr){
     G.colors_ = data.colors;
     return G;
 }
-mpa::Game hoa2distgame(const std::string filename){
+mpa::Game hoa2distgame(const std::string& filename){
     std::ifstream file(filename);
     return hoa2distgame(file);
 }
-mpa::Game hoa2distgame(const std::string filename, const std::string filename2){
+mpa::Game hoa2distgame(const std::string& filename, const std::string& filename2){
     mpa::DistGame G;
     G.product_games(hoa2game(filename),hoa2game(filename2));
     return std::move(G);
@@ -459,7 +459,7 @@ std::string print_acceptance(const size_t k) {
 /* function: print_label
 *
 * print out the label of state */
-std::string print_label(const mpa::Game G, size_t u, const bool num = true) {
+std::string print_label(const mpa::Game& G, size_t u, const bool num = true) {
     std::string output;
     std::string output_num;
     size_t start = 1;
@@ -499,7 +499,7 @@ std::string print_label(const mpa::Game G, size_t u, const bool num = true) {
 
 /*! print out (to a file if given) the game in hoa format 
  * \param[in] Game  */  
-int game2hoa(const mpa::Game G, std::ostream& ostr = std::cout) {
+int game2hoa(const mpa::Game& G, std::ostream& ostr = std::cout) {
     size_t n_vertices = G.n_vert_ - G.n_edge_/2;
     ostr << "HOA: v1\n";
     ostr << "States: "<< n_vertices << "\n";
