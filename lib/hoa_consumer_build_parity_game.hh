@@ -59,6 +59,8 @@ namespace cpphoafparser {
         std::map<size_t, std::vector<size_t>> labels;
         /* controllable APs */
         std::set<size_t> controllable_ap;
+        /* name of states */
+        std::map<size_t, std::string> state_names;
         
         std::string acc_name;
         size_t minCol;
@@ -202,11 +204,30 @@ namespace cpphoafparser {
                               label_expr::ptr labelExpr,
                               std::shared_ptr<int_list> accSignature) override {
             data_->vertices.insert(id);
+            size_t color;
+            std::vector<size_t> all_color;
             if (accSignature) {
-                std::cerr << "Error! It is not edge-based acceptance!\n";
+                std::vector<unsigned int> accSignatureValue = *accSignature.get();
+                color = accSignatureValue[0]+data_->minCol+1;
+                if (color > data_->max_color){
+                    data_->max_color = color;
+                }
+                /* continue collecting colors as long as possible */
+                for (size_t i = 0; i < accSignatureValue.size(); i++){
+                    all_color.push_back(accSignatureValue[i]+data_->minCol+1);
+                }
+                if (all_color.size() > 0 && all_color.size() != data_->all_colors.size()){
+                    data_->all_colors = std::vector<std::map<size_t, size_t>>(all_color.size());
+                }
+                
+                
             }
             else{
-                data_->colors.insert({id,data_->minCol});
+                color = data_->minCol;
+            }
+            data_->colors.insert({id,color});
+            for (size_t i = 0; i < all_color.size(); i++){
+                data_->all_colors[i].insert({id,all_color[i]});
             }
             
             // if (data_->vert_id[id] == V0){
@@ -232,7 +253,13 @@ namespace cpphoafparser {
             //     }
             // }
             UNUSED(labelExpr);
-            UNUSED(info);
+            // UNUSED(info);
+            if (info){
+                data_->state_names.insert({id,*info});
+            }
+            else{
+                data_->state_names.insert({id,""});
+            }
         }
 
         virtual void addEdgeImplicit(unsigned int stateId,
