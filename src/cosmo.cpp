@@ -17,6 +17,7 @@ void printHelp() {
     std::cout << "- STDOUT: assumption and strategy templates for each player (assumption on environment and strategy template for system in case of a single-objective parity game)\n"; 
     std::cout << "\nThe possible OPTIONs are as follows:\n";
     std::cout << "- --help                  Print this help message\n";
+    std::cout << "- --print-actions         Print the template with actions instead of edges (only for games with labels on edges)\n";
     std::cout << "- --print-game            Print the parity game (same format as input)\n";
     std::cout << "- --print-template-size   Print size of the templates\n";
     std::cout << "\nExample usage:\n";
@@ -27,12 +28,15 @@ int main(int argc, char* argv[]) {
     try {
         bool print_game = false; // Flag to determine if game should be printed (same format as input)
         bool print_template_size = false; // Flag to determine if template size should be printed
+        bool print_actions = false; // Flag to determine if labels should be printed
 
         for (int i = 1; i < argc; ++i) {
             if (std::string(argv[i]) == "--print-game") {
                 print_game = true;
             } else if (std::string(argv[i]) == "--print-template-size") {
                 print_template_size = true;
+            } else if (std::string(argv[i]) == "--print-actions") {
+                print_actions = true;   
             } else if (std::string(argv[i]) == "--help") {
                 printHelp();
                 return 0;
@@ -63,7 +67,7 @@ int main(int argc, char* argv[]) {
             mpa::Template assump;
             mpa::Template strat;
             auto winning_region = G2.find_assump_parity(assump, strat);
-            G2.filter_out_edge_states(winning_region,assump,strat); /* remove edge-states from result (needned for HOA formatted games) */
+            G2.filter_out_edge_states(winning_region,assump,strat, print_actions); /* remove edge-states from result (needned for HOA formatted games) */
             
             G2.print_set(winning_region.first, "Winning Region");
 
@@ -100,7 +104,7 @@ int main(int argc, char* argv[]) {
         std::vector<mpa::Template> strats;
         winning_region = G.find_AG_contract(assumps, strats);
         /* remove edge-states from result (needned for HOA formatted games) */
-        G.filter_out_edge_states(winning_region,assumps,strats);
+        G.filter_out_edge_states(winning_region,assumps,strats, print_actions);
 
         G.print_set(winning_region.first, "Winning Region");
         for (size_t i = 0; i < 2; i++){

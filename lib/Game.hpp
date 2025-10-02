@@ -482,29 +482,41 @@ public:
     /// Filter all edge-states out (needed for HOA formatted games)
     ///////////////////////////////////////////////////////////////
 
-    /* replace edge-states by its (only) successor in a set of edges */
-    int filter_edges(std::map<size_t, std::set<size_t>>& edges) const {
+    //* update string parts of the template by replacing edge-states by its label or its(only) successor in a set of edges */
+    int filter_edges(const std::map<size_t, std::set<size_t>>& edges, std::map<size_t, std::set<std::string>>& edge_string, const bool print_actions=false) const {
+        edge_string.clear();
         for (auto& pair : edges){
-            std::set<size_t> new_succs;
-            for (const auto& succ : pair.second){
-                new_succs.insert(*edges_.at(succ).begin());
+            std::set<std::string> new_succs;
+            for (auto succ : pair.second){
+                if (print_actions){
+                    new_succs.insert("\"" + print_label(succ, true) + "\"");
+                }
+                else{
+                    new_succs.insert(std::to_string(*edges_.at(succ).begin()));
+                }
             }
-            pair.second = new_succs;
+            edge_string.insert(std::make_pair(pair.first, new_succs));
         }
         return 1;
     }
 
     /* filter out edge-states in a template */
-    int filter_templates(Template& assump, const std::set<size_t>& org_vertices) const {
-        filter_edges(assump.unsafe_edges_);
-        filter_edges(assump.colive_edges_);
+    int filter_templates(Template& assump, const std::set<size_t>& org_vertices, const bool print_actions=false) const {
+        filter_edges(assump.unsafe_edges_, assump.unsafe_strings_, print_actions);
+        filter_edges(assump.colive_edges_, assump.colive_strings_, print_actions);
         for (auto& live_group : assump.live_groups_){
-            filter_edges(live_group);
+            std::map<size_t, std::set<std::string>> live_strings;
+            filter_edges(live_group, live_strings, print_actions);
+            assump.live_groups_strings_.push_back(live_strings);
         }
         for (auto& live_groups : assump.cond_live_groups_){
+            std::vector<std::map<size_t, std::set<std::string>>> cond_live_strings;
             for (auto& live_group : live_groups){
-                filter_edges(live_group);
+                std::map<size_t, std::set<std::string>> live_strings;
+                filter_edges(live_group, live_strings, print_actions);
+                cond_live_strings.push_back(live_strings);
             }
+            assump.cond_live_groups_strings_.push_back(cond_live_strings);
         }
         for (auto& cond_sets : assump.cond_sets_){
             cond_sets = set_intersection(cond_sets, org_vertices);
@@ -514,7 +526,7 @@ public:
     }
 
     /* filter out edge-states from a winning region, assumption and strategy template */
-    int filter_out_edge_states(std::pair<std::set<size_t>, std::set<size_t>>& winning_region, Template& assump, Template& strat) const {
+    int filter_out_edge_states(std::pair<std::set<size_t>, std::set<size_t>>& winning_region, Template& assump, Template& strat, const bool print_actions=false) const {
         if (labels_.empty()){
             return 0;
         }
@@ -527,8 +539,8 @@ public:
         winning_region.first = set_intersection(winning_region.first, org_vertices);
         winning_region.second = set_intersection(winning_region.second, org_vertices);
         
-        filter_templates(assump, org_vertices);
-        filter_templates(strat, org_vertices);
+        filter_templates(assump, org_vertices, print_actions);
+        filter_templates(strat, org_vertices, print_actions);
         return 1;
     }
 
@@ -873,6 +885,47 @@ public:
                 std::cout << ", ";
         }
         std::cout << "\n";
+    }
+
+    /* function: print_label
+    *
+    * print out the label of state */
+    std::string print_label(size_t u, const bool num = true) const {
+        std::string output;
+        std::string output_num;
+        size_t start = 1;
+        for (size_t i = 0; i < ap_id_.size(); i++){
+            if (labels_.at(u)[i] == 0){
+                if (start == 1){
+                    start = 0;
+                    output += "!"+ap_id_.at(i);
+                    output_num += "!" + std::to_string(i);
+                }
+                else{
+                    output += " & !"+ap_id_.at(i);
+                    output_num += "&!" + std::to_string(i);
+                }
+            }
+            else if (labels_.at(u)[i] == 1){
+                if (start == 1){
+                    start = 0;
+                    output += ap_id_.at(i);
+                    output_num += std::to_string(i);
+                }
+                else{
+                    output += " & "+ ap_id_.at(i);
+                    output_num += "&"+std::to_string(i);
+                }
+            }
+        }
+        if (output.empty()){
+            output = "*";
+            output_num = "t";
+        }
+        if (!num){
+            return output;
+        }
+        return output_num;
     }
 
 }; /* close class definition */

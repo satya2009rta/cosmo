@@ -658,7 +658,7 @@ public:
     ///////////////////////////////////////////////////////////////
 
     /* filter out edge-states from a winning region, assumption and strategy template */
-    int filter_out_edge_states(std::pair<std::set<size_t>, std::set<size_t>>& winning_region, std::vector<Template>& assumps, std::vector<Template>& strats) const {
+    int filter_out_edge_states(std::pair<std::set<size_t>, std::set<size_t>>& winning_region, std::vector<Template>& assumps, std::vector<Template>& strats, bool print_actions = false) const {
         if (labels_.empty()){
             return 0;
         }
@@ -672,8 +672,8 @@ public:
         winning_region.second = set_intersection(winning_region.second, org_vertices);
         
         for (size_t i = 0; i < assumps.size(); i++){
-            filter_templates(assumps[i], org_vertices);
-            filter_templates(strats[i], org_vertices);
+            filter_templates(assumps[i], org_vertices, print_actions);
+            filter_templates(strats[i], org_vertices, print_actions);
         }
         return 1;
     }

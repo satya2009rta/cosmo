@@ -29,6 +29,15 @@ public:
     std::vector<std::map<size_t, std::set<size_t>>> live_groups_;
     /* set of conditional live groups (mapping from the conditions sets) */
     std::vector<std::vector<std::map<size_t, std::set<size_t>>>> cond_live_groups_;
+
+    /* set of unsafe strings */
+    std::map<size_t, std::set<std::string>> unsafe_strings_;
+    /* set of colive strings */
+    std::map<size_t, std::set<std::string>> colive_strings_;
+    /* a vector of live groups for strings */
+    std::vector<std::map<size_t, std::set<std::string>>> live_groups_strings_;
+    /* set of conditional live groups for strings (mapping from the conditions sets) */
+    std::vector<std::vector<std::map<size_t, std::set<std::string>>>> cond_live_groups_strings_;
 public:
     /* default constructor */
     Template() {}
@@ -56,7 +65,7 @@ public:
     /* merge all colive edges and live groups (in cond_live_groups_) with another template */
     void merge_live_colive(const Template& new_temp){
         edge_merge(colive_edges_, new_temp.colive_edges_);
-        live_groups_.clear();
+        live_groups_.insert(live_groups_.end(), new_temp.live_groups_.begin(), new_temp.live_groups_.end());
         for (const auto& live_groups : cond_live_groups_){
             live_groups_.insert(live_groups_.end(), live_groups.begin(), live_groups.end());
         }
@@ -68,10 +77,7 @@ public:
     /* merge all colive edges and live groups (in cond_live_groups_) in a set of templates */
     void merge_live_colive(const std::vector<Template>& new_temps){
         for (const auto& new_temp : new_temps){
-            edge_merge(colive_edges_, new_temp.colive_edges_);
-            for (const auto& live_groups : new_temp.cond_live_groups_){
-                live_groups_.insert(live_groups_.end(), live_groups.begin(), live_groups.end());
-            }
+            merge_live_colive(new_temp);
         }
     }
 
@@ -181,8 +187,51 @@ public:
     void clean(){
         clean_unsafe_edges();
         clean_colive_edges();
+        clean_live_groups();
         clean_cond_live_groups();
     }
+
+    ///////////////////////////////////////////////////////////////
+    /// Compute strings from template if needed
+    ///////////////////////////////////////////////////////////////
+
+    /* convert set of size_t to set of strings */
+    std::set<std::string> set_to_string(const std::set<size_t>& set) const {
+        std::set<std::string> result;
+        for (auto element : set){
+            result.insert(std::to_string(element));
+        }
+        return result;
+    }
+
+    /* compute strings from the template */
+    void compute_strings() {
+        for (auto& pair : unsafe_edges_){
+            unsafe_strings_[pair.first] = set_to_string(pair.second);
+        }
+        for (auto& pair : colive_edges_){
+            colive_strings_[pair.first] = set_to_string(pair.second);
+        }
+        for (auto& live_group : live_groups_){
+            std::map<size_t, std::set<std::string>> live_group_strings;
+            for (auto& pair : live_group){
+                live_group_strings[pair.first] = set_to_string(pair.second);
+            }
+            live_groups_strings_.push_back(live_group_strings);
+        }
+        for (auto& live_groups : cond_live_groups_){
+            std::vector<std::map<size_t, std::set<std::string>>> cond_live_strings;
+            for (auto& live_group : live_groups){
+                std::map<size_t, std::set<std::string>> live_group_strings;
+                for (auto& pair : live_group){
+                    live_group_strings[pair.first] = set_to_string(pair.second);
+                }
+                cond_live_strings.push_back(live_group_strings);
+            }
+            cond_live_groups_strings_.push_back(cond_live_strings);
+        }
+    }
+
 
     
     ///////////////////////////////////////////////////////////////
@@ -204,10 +253,10 @@ public:
     /* function: print_edges
      *
      * print out all edges of the map */
-    void print_edges (const std::map<size_t, std::set<size_t>>& edges, const std::string note = "edges", const int print_empty = 1) const {
-        if (print_empty == 1 || edges.size()!=0){
+    void print_edges (const std::map<size_t, std::set<std::string>>& edges_string, const std::string note = "edges", const int print_empty = 1) const {
+        if (print_empty == 1 || edges_string.size()!=0){
             std::cout << "\n" << note << ": \n";
-            for (auto v = edges.begin(); v != edges.end(); ++v){
+            for (auto v = edges_string.begin(); v != edges_string.end(); ++v){
                 for (const auto& u : v->second){
                     std::cout << v->first << " -> " << u << "\n";
                 }
@@ -220,7 +269,7 @@ public:
      * print out all unsafe edges */
     void print_unsafe_edges (const std::string note = "Unsafe edges", 
                             const int print_empty = 0) const {
-    print_edges(unsafe_edges_, note, print_empty);
+    print_edges(unsafe_strings_, note, print_empty);
     }
 
     /* function: print_colive_edges
@@ -228,17 +277,17 @@ public:
      * print out all colive edges */
     void print_colive_edges (const std::string note = "Colive edges", 
                             const int print_empty = 0) const {
-    print_edges(colive_edges_, note, print_empty);
+    print_edges(colive_strings_, note, print_empty);
     }
 
 
     /* function: print_live_groups
      *
      * print out all live_groups of the live_groups */
-    void print_live_groups (const std::vector<std::map<size_t, std::set<size_t>>>& live_groups, const std::string note = "live groups", const int print_empty = 1) const {
-        if (print_empty == 1 || live_groups.size()!=0){
+    void print_live_groups (const std::vector<std::map<size_t, std::set<std::string>>>& live_groups_strings, const std::string note = "live groups", const int print_empty = 1) const {
+        if (print_empty == 1 || live_groups_strings.size()!=0){
             std::cout << "\n" << note << ": \n";
-            for (const auto& live_group : live_groups){
+            for (const auto& live_group : live_groups_strings){
                 std::cout << "{";
                 size_t counter = 0;
                 for (auto v = live_group.begin(); v != live_group.end(); v++){
@@ -256,8 +305,8 @@ public:
             }
         }
     }
-    void print_live_groups(const std::string note = "live groups", const int print_empty = 0) const {
-        print_live_groups(live_groups_, note, print_empty);
+    void print_live_groups(const std::string note = "Live groups", const int print_empty = 0) const {
+        print_live_groups(live_groups_strings_, note, print_empty);
     }
 
 
@@ -266,12 +315,12 @@ public:
      * print out all conditional live_groups of the cond_live_groups_ */
     void print_cond_live_groups (const std::string note = "Conditional live groups", 
                                 const int print_empty = 0) const {
-        if (print_empty == 1 || cond_live_groups_.size()!=0){
+        if (print_empty == 1 || cond_live_groups_strings_.size()!=0){
             std::cout << "\n" << note << ": \n";
             for (size_t i = 0; i < cond_sets_.size(); i++){
                 const auto& set = cond_sets_[i];
-                const auto& live_groups = cond_live_groups_[i];
-                for (const auto& live_group : live_groups){
+                const auto& live_groups_strings = cond_live_groups_strings_[i];
+                for (const auto& live_group_string : live_groups_strings){
                     std::cout << "{";
                     for (auto u=set.begin(); u != set.end();){
                         std::cout << *u;
@@ -283,7 +332,7 @@ public:
                 
                     std::cout << "{";
                     size_t counter = 0;
-                    for (const auto& v : live_group){
+                    for (const auto& v : live_group_string){
                         for (const auto& u : v.second){
                             if (counter == 0){
                                 std::cout << "("<<v.first << " -> " << u<<")";
@@ -302,10 +351,10 @@ public:
 
     /* function: print_template
      *
-     * print out the whole template (clean it first if clean_all == 1) */
-    void print_template(const int clean_all = 1){
-        if (clean_all == 1){
-            clean();
+     * print out the whole template */
+    void print_template(){
+        if (unsafe_strings_.empty() && colive_strings_.empty() && live_groups_strings_.empty() && cond_live_groups_strings_.empty()){
+            compute_strings();
         }
         print_unsafe_edges();
         print_colive_edges();

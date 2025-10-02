@@ -32,6 +32,7 @@ Inputs/Outputs:
     - assumption on player 1 and strategy template for player 0 in case of a single-objective parity game
 
 The possible OPTIONs are as follows:
+- --print-actions: print the template with actions instead of edges (only for games with labels on edges)
 - --print-game: print the parity game (same format as input)
 - --print-template-size: print size of the templates
 
