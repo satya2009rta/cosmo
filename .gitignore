@@ -9,6 +9,7 @@
 *.dSYM
 *.DS_Store
 *.vscode
+/build/*
 
 # Precompiled Headers
 *.gch

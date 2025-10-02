@@ -68,6 +68,8 @@ int main(int argc, char* argv[]) {
             mpa::Template strat;
             auto winning_region = G2.find_assump_parity(assump, strat);
             G2.filter_out_edge_states(winning_region,assump,strat, print_actions); /* remove edge-states from result (needned for HOA formatted games) */
+            assump.clean();
+            strat.clean();
             
             G2.print_set(winning_region.first, "Winning Region");
 
@@ -103,6 +105,11 @@ int main(int argc, char* argv[]) {
         std::vector<mpa::Template> assumps;
         std::vector<mpa::Template> strats;
         winning_region = G.find_AG_contract(assumps, strats);
+        assumps[0].clean();
+        assumps[1].clean();
+        strats[0].clean();
+        strats[1].clean();
+
         /* remove edge-states from result (needned for HOA formatted games) */
         G.filter_out_edge_states(winning_region,assumps,strats, print_actions);
 
